@@ -8,8 +8,11 @@ public:
 	WorldCoordinate();
 	~WorldCoordinate();
 public:
-	vector<Point2f> DetectVertex(Mat frame, vector<Point3f> &objectPoints, vector<Point2f> &imagePoints);
-	vector<Point2f> FindCameraPosition(Mat drawing, vector<Point3f> &objectPoints, vector<Point2f> &imagePoints);
+	Mat FindCameraParameters(double fx, double fy, double cx, double cy);
+	Mat FindDistortionParameters(double k1, double k2, double p1, double p2);
+	vector<Point2f> DetectVertex(Mat frame, vector<Point3f> &objectPoints, vector<Point2f> &imagePoints, Mat camParam, Mat distCoeffs);
+	vector<Point2f> FindCameraPosition(vector<Point3f> &objectPoints, vector<Point2f> &imagePoints, Mat camParam, Mat distCoeffs);
+	void drawingWorldCoordinates(Mat drawing, vector<Point3f> objectPoints, vector<Point2f> imagePoints, Mat camParam, Mat distCoeffs);
 
 
 private:
