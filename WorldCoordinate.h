@@ -1,6 +1,20 @@
 #pragma once
+#include <iostream>
+#include <vector>
+#include <string>
 
-#include "Common.h"
+#include <opencv2/opencv.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/highgui.hpp>
+#include <opencv2/videoio.hpp>
+
+#ifdef _DEBUG
+#pragma comment(lib, "opencv_world480d.lib")
+#else
+#pragma comment(lib, "opencv_world480.lib")
+#endif
+using namespace std;
+using namespace cv;
 
 class WorldCoordinate
 {
@@ -8,13 +22,8 @@ public:
 	WorldCoordinate();
 	~WorldCoordinate();
 public:
-	Mat FindCameraParameters(double fx, double fy, double cx, double cy);
-	Mat FindDistortionParameters(double k1, double k2, double p1, double p2);
-	vector<Point2f> DetectVertex(Mat frame, vector<Point3f> &objectPoints, vector<Point2f> &imagePoints, Mat camParam, Mat distCoeffs);
-	vector<Point2f> FindCameraPosition(vector<Point3f> &objectPoints, vector<Point2f> &imagePoints, Mat camParam, Mat distCoeffs);
-	void drawingWorldCoordinates(Mat drawing, vector<Point3f> objectPoints, vector<Point2f> imagePoints, Mat camParam, Mat distCoeffs);
-
-
+	vector<Point2f> DetectVertex(Mat frame, vector<Point3f> objectPoints, vector<Point2f> imagePoints);
+	vector<Point2f> CalculateDistance(Mat drawing, vector<Point3f> objectPoints, vector<Point2f> imagePoints);
 private:
 	double fx = 612.577383;
 	double fy = 572.970525;
@@ -24,7 +33,6 @@ private:
 	double k2 = 0.259353;
 	double p1 = 0.004600;
 	double p2 = 0.002048;
-
 };
 
 

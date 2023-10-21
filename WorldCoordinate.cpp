@@ -10,25 +10,7 @@ WorldCoordinate::~WorldCoordinate()
 	std::cout << "WorldCoordinate::Dtor" << std::endl;
 }
 
-Mat WorldCoordinate::FindCameraParameters(double fx, double fy, double cx, double cy)
-{
-	// camera parameters
-	double m[] = { fx, 0, cx, 0, fy, cy, 0, 0, 1 };	// intrinsic parameters
-	Mat A(3, 3, CV_64FC1, m);	// camera matrix
-
-	return A;
-}
-
-Mat WorldCoordinate::FindDistortionParameters(double k1, double k2, double p1, double p2)
-{
-	// distortion parameters
-	double d[] = { k1, k2, p1, p2 };	// k1,k2: radial distortion, p1,p2: tangential distortion
-	Mat distCoeffs(4, 1, CV_64FC1, d);
-
-	return distCoeffs;
-}
-
-vector<Point2f> WorldCoordinate::DetectVertex(Mat frame, vector<Point3f> &objectPoints, vector<Point2f> &imagePoints, Mat camParam, Mat distCoeffs)
+vector<Point2f> WorldCoordinate::DetectVertex(Mat frame, vector<Point3f> objectPoints, vector<Point2f> imagePoints)
 {
 	Mat frame_gray;
 	// Convert the image to grayscale
@@ -64,11 +46,19 @@ vector<Point2f> WorldCoordinate::DetectVertex(Mat frame, vector<Point3f> &object
 	return imagePoints;
 }
 
-void WorldCoordinate::drawingWorldCoordinates(Mat drawing, vector<Point3f> objectPoints, vector<Point2f> imagePoints, Mat camParam, Mat distCoeffs)
+vector<Point2f> WorldCoordinate::CalculateDistance(Mat drawing, vector<Point3f> objectPoints, vector<Point2f> imagePoints)
 {
+	// camera parameters
+	double m[] = { fx, 0, cx, 0, fy, cy, 0, 0, 1 };	// intrinsic parameters
+	Mat A(3, 3, CV_64FC1, m);	// camera matrix
+
+	// distortion parameters
+	double d[] = { k1, k2, p1, p2 };	// k1,k2: radial distortion, p1,p2: tangential distortion
+	Mat distCoeffs(4, 1, CV_64FC1, d);
+
 	// estimate camera pose
 	Mat rvec, tvec;	// rotation & translation
-	solvePnP(objectPoints, imagePoints, camParam, distCoeffs, rvec, tvec);
+	solvePnP(objectPoints, imagePoints, A, distCoeffs, rvec, tvec);
 
 	// extract rotation matrix
 	Mat R;
@@ -77,21 +67,17 @@ void WorldCoordinate::drawingWorldCoordinates(Mat drawing, vector<Point3f> objec
 
 	// camera position (X,Y,Z)
 	Mat Cam_pos = -R_inv * tvec;
-	double* p = (double*)Cam_pos.data;
+	double* cworld = (double*)Cam_pos.data;
 
 	// camera position
 	double X, Y, Z;
-	X = p[0];
-	Y = p[1];
-	Z = p[2];
-
+	X = cworld[0];
+	Y = cworld[1];
+	Z = cworld[2];
 
 	// Loop to draw markers and text on the image
 	for (int i = 0; i < objectPoints.size(); i++)
 	{
-		// Draw markers at the edges
-		cv::circle(drawing, imagePoints[i], 5, cv::Scalar(0, 0, 255), -1);
-
 		//Converts pixel coordinates to normalized coordinates
 		double u, v;
 		u = (imagePoints[i].x - cx) / fx;
@@ -100,13 +86,13 @@ void WorldCoordinate::drawingWorldCoordinates(Mat drawing, vector<Point3f> objec
 
 		//Get world coordinate of P axis
 		Mat Pw = R_inv * (Pc - tvec);	// world coordinate of P axis
-		Mat Cw = R_inv * (-tvec);		// world coordinate of Camera axis
+		//Mat Cw = R_inv * (-tvec);		// world coordinate of Camera axis
 		double* pworld = (double*)Pw.data;
-		double* cworld = (double*)Cw.data;
+		//double* cworld = (double*)Cam_pos.data;
 
 		// Get the coordinate of P
 		double k = (-cworld[2]) / (pworld[2] - cworld[2]);
-		Mat P = Cw + k * (Pw - Cw);
+		Mat P = Cam_pos + k * (Pw - Cam_pos);
 		double* pp = (double*)P.data;
 
 		// Convert 3D point to a string
@@ -122,32 +108,16 @@ void WorldCoordinate::drawingWorldCoordinates(Mat drawing, vector<Point3f> objec
 		cv::putText(drawing, cam_pose_text.str(), Point(10, 10), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 0, 255), 2);
 	}
 
-	return;
-}
+	double calculateX, calculateY;
+	calculateX = 5 - X;
+	calculateY = 5 - Y;
 
-vector<Point2f> WorldCoordinate::FindCameraPosition(vector<Point3f> &objectPoints, vector<Point2f> &imagePoints, Mat camParam, Mat distCoeffs)
-{
-	// estimate camera pose
-	Mat rvec, tvec;	// rotation & translation
-	solvePnP(objectPoints, imagePoints, camParam, distCoeffs, rvec, tvec);
+	vector<Point2f> calDist;
+	calDist.push_back(Point(calculateX, calculateY));
 
-	// extract rotation matrix
-	Mat R;
-	Rodrigues(rvec, R);
-	Mat R_inv = R.inv();
+	ostringstream distance;
+	distance << "move X : " << calculateX << ", move Y : " << calculateY;
+	cv::putText(drawing, distance.str(), Point(20, 460), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 0), 2);
 
-	// camera position (X,Y,Z)
-	Mat Cam_pos = -R_inv * tvec;
-	double* p = (double*)Cam_pos.data;
-
-	// camera position
-	double X, Y, Z;
-	X = p[0];
-	Y = p[1];
-	Z = p[2];
-
-	vector<Point2f> cameraCoordinates;
-	cameraCoordinates.push_back(Point2f(X, Y));
-
-	return cameraCoordinates;
+	return calDist;
 }
