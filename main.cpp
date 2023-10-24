@@ -7,10 +7,12 @@
 
 using namespace cv;
 
+// input: 960x960 avm
+// output: 주차장 4개 point, 주차 가능 flag
 int main()
 {
     LaneDetector laneDetector;
-    Mat frameImg, filterImg, edgeImg, laneImg;
+    Mat frameImg, laneImg;
     vector<vector<Point>> boxP;
 
     //VideoCapture cap("D:\\Project\\LaneDetector\\LaneDetector\\test.mp4");
@@ -26,17 +28,17 @@ int main()
     {
         cap >> frameImg;
 
-        filterImg = laneDetector.FilterColors(frameImg);
-        imshow("filterImg", filterImg);
-
-        edgeImg = laneDetector.MakeEdge(filterImg);
-        imshow("edgeImg", edgeImg);
-
         laneImg = frameImg.clone();
-        boxP = laneDetector.FindBox(edgeImg);
-        if (boxP.size() > 0) {
+        boxP = laneDetector.FindBox(frameImg);
+        if (boxP.size() > 0) 
             laneImg = laneDetector.DrawLane(frameImg, boxP);
-        }
+        
+        bool flag = laneDetector.DetectObstacle(boxP);
+        if (flag == true)
+            putText(laneImg, "Can't parking", Point(80, 80), FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2);
+        else if (flag == false)
+            putText(laneImg, "Can parking", Point(80, 80), FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2);
+
         imshow("laneImg", laneImg);
 
         char key = static_cast<char>(waitKey(30));
@@ -48,17 +50,12 @@ int main()
     {
         frameImg = imread("D:\\Project\\LaneDetector\\LaneDetector\\template.png");
 
-        filterImg = laneDetector.FilterColors(frameImg);
-
-        edgeImg = laneDetector.MakeEdge(filterImg);
-        
         laneImg = frameImg.clone();
-        boxP = laneDetector.FindBox(edgeImg);
+        boxP = laneDetector.FindBox(frameImg);
         if (boxP.size() > 0) {
             laneImg = laneDetector.DrawLane(frameImg, boxP);
         }
         imshow("laneImg", laneImg);
-
     }
 
     return 0;

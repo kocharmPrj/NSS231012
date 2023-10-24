@@ -26,19 +26,21 @@ public:
 	LaneDetector();
 	~LaneDetector();
 
-	Mat FilterColors(Mat img_frame);
-	Mat MakeEdge(Mat img_frame);
+	Mat FilterColors(Mat img);
+	Mat MakeEdge(Mat img);
 	static bool cmpX(Point a, Point b);
 	static bool cmpY(Point a, Point b);
-	void GetXYLine(Mat img_frame);
-	vector<vector<Point>> FindBox(Mat edgeImg);
-	Mat DrawLane(Mat frameImg, vector<vector<Point>> boxPoints);
+	void GetXYLine(Mat img);
+	vector<vector<Point>> FindBox(Mat img);
+	Mat DrawLane(Mat img, vector<vector<Point>> boxPoints);
+	bool DetectObstacle(vector<vector<Point>> boxPoints);
 
 private:
+	Mat filterImg, edgeImg, laneImg;
 	vector<Vec4i> linesP;
 	vector<vector<Vec4i>> xyLines;
 	int imgCols, imgRows;
-	bool xlineDetect, ylineDetect;
+	bool xlineDetect, ylineDetect, obstacleFlag;
 };
 
 

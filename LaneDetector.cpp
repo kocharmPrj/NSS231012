@@ -1,4 +1,5 @@
 
+#define _CRT_SECURE_NO_WARNINGS
 #include "LaneDetector.h"
 #include <algorithm>
 LaneDetector::LaneDetector()
@@ -8,6 +9,7 @@ LaneDetector::LaneDetector()
 	, imgRows(0)
 	, xlineDetect(false)
 	, ylineDetect(false)
+	, obstacleFlag(false)
 {
 }
 
@@ -16,16 +18,16 @@ LaneDetector::~LaneDetector()
 }
 
 // 1. 차선 색선택 fitering
-Mat LaneDetector::FilterColors(Mat frameImg)
+Mat LaneDetector::FilterColors(Mat img)
 {
 	//bilateralfiltering을 거친 후 흰색/노란색 색상의 범위를 정해 해당되는 차선을 필터링
-	Mat output = Mat::zeros(frameImg.size(), CV_8UC1);
-	imgCols = frameImg.cols;
-	imgRows = frameImg.rows;
+	Mat output = Mat::zeros(img.size(), CV_8UC1);
+	imgCols = img.cols;
+	imgRows = img.rows;
 	UMat hsvImg;
 	UMat whiteMask, whiteImg;
 	UMat yellowMask, yellowImg;
-	frameImg.copyTo(output);
+	img.copyTo(output);
 
 	//차선 색깔 범위 
 	Scalar lowerWhite = Scalar(200, 200, 200); //흰색 차선 (RGB)
@@ -34,7 +36,7 @@ Mat LaneDetector::FilterColors(Mat frameImg)
 	Scalar upperYellow = Scalar(40, 255, 255);
 
 	// bilateralfilter(opencv내장함수)
-	bilateralFilter(frameImg, output, 10, 50, 50);
+	bilateralFilter(img, output, 10, 50, 50);
 
 	//흰색 필터링
 	inRange(output, lowerWhite, upperWhite, whiteMask);
@@ -53,9 +55,9 @@ Mat LaneDetector::FilterColors(Mat frameImg)
 }
 
 // 2. edge 추출
-Mat LaneDetector::MakeEdge(Mat frameImg) {
+Mat LaneDetector::MakeEdge(Mat img) {
 	Mat output;
-	cv::Canny(frameImg, output, 50, 150);
+	cv::Canny(img, output, 50, 150);
 
 	return output;
 }
@@ -92,7 +94,9 @@ bool LaneDetector::cmpY(Point a, Point b) {
 	return a.y < b.y;
 }
 // ROI box point 추출
-vector<vector<Point>> LaneDetector::FindBox(Mat edgeImg) {
+vector<vector<Point>> LaneDetector::FindBox(Mat frameImg) {
+	filterImg = FilterColors(frameImg);
+	edgeImg = MakeEdge(filterImg);
 	GetXYLine(edgeImg);
 
 	vector<vector<Point>> xline, yline;
@@ -153,11 +157,52 @@ Mat LaneDetector::DrawLane(Mat frameImg, vector<vector<Point>> boxPoints) {
 
 	for (int i = 0; i < boxPoints.size(); i++) {
 		fillConvexPoly(output, boxPoints[i], Scalar(0, 230, 30), LINE_AA, 0);
-		addWeighted(output, 0.3, frameImg, 0.7, 0, output);
 		line(output, boxPoints[i][0], boxPoints[i][1], Scalar(0, 0, 255), 2, LINE_AA);
 		line(output, boxPoints[i][2], boxPoints[i][3], Scalar(0, 0, 255), 2, LINE_AA);
 		line(output, boxPoints[i][3], boxPoints[i][0], Scalar(0, 0, 255), 2, LINE_AA);
 	}
+	addWeighted(output, 0.3, frameImg, 0.7, 0, output);
 
 	return output;
+}
+
+bool LaneDetector::DetectObstacle(vector<vector<Point>> boxPoints) {
+	for (int i = 0; i < boxPoints.size(); i++) {
+		double xLen = boxPoints[i][3].x - boxPoints[i][1].x;
+		double yLen = boxPoints[i][3].y - boxPoints[i][1].y;
+		double xCenter = (boxPoints[i][3].x + boxPoints[i][1].x) / 2;
+		double yCenter = (boxPoints[i][3].y + boxPoints[i][1].y) / 2;
+		double xPadding = xLen * 0.3;
+		double yPadding = yLen * 0.3;
+		vector<Point> roi;
+		Mat maskedImg, obstacleImg;
+		uchar pixelSum = 0;
+		
+		roi.push_back(Point(xCenter + xPadding, yCenter - yPadding));
+		roi.push_back(Point(xCenter - xPadding, yCenter - yPadding));
+		roi.push_back(Point(xCenter - xPadding, yCenter + yPadding));
+		roi.push_back(Point(xCenter + xPadding, yCenter + yPadding));
+
+		maskedImg = Mat::zeros(edgeImg.rows, edgeImg.cols, CV_8UC1);
+		fillConvexPoly(maskedImg, roi, Scalar(255, 255, 255), LINE_8);
+		bitwise_and(edgeImg, maskedImg, obstacleImg);
+
+		imshow("obstacleImg", obstacleImg);
+
+		for (int row = 0; row < obstacleImg.rows; row++) {
+			for (int col = 0; col < obstacleImg.cols; col++) {
+				pixelSum += obstacleImg.data[row * obstacleImg.cols + col];
+			}
+		}
+
+		char mystr_1[30];
+		sprintf(mystr_1, "pixelSum : %d", pixelSum);
+		putText(obstacleImg, mystr_1, Point(80, 80), FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2);
+		imshow("obstacleImg", obstacleImg);
+
+		if (pixelSum > 10) obstacleFlag = true;
+		else obstacleFlag = false;
+	}
+
+	return obstacleFlag;
 }
