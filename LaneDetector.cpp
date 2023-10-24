@@ -2,7 +2,9 @@
 #include "LaneDetector.h"
 #include <algorithm>
 LaneDetector::LaneDetector()
-	: imgCols(0)
+	: linesP({})
+	, xyLines({})
+	, imgCols(0)
 	, imgRows(0)
 	, xlineDetect(false)
 	, ylineDetect(false)
@@ -79,9 +81,9 @@ void LaneDetector::GetXYLine(Mat img) {
 			ylineDetect = true;
 		}
 	}
+	xyLines = {};
 	xyLines.push_back(xlines);
-	xyLines.push_back(ylines);
-	
+	xyLines.push_back(ylines);	
 }
 bool LaneDetector::cmpX(Point a, Point b) {
 	return a.x < b.x;
@@ -133,7 +135,7 @@ vector<vector<Point>> LaneDetector::FindBox(Mat edgeImg) {
 		sort(yb.begin(), yb.end(), cmpX);
 		for (int i = 1; i < xb.size() - 2; i+=2) {
 			double area = (xb[i + 1].y - xb[i].y) * yb[0].x;
-			if (10000 < area) {
+			if (30000 < area) {
 				vector<Point> temp;
 				temp.push_back(Point(yb[0].x, xb[i].y));
 				temp.push_back(Point(0, xb[i].y));
@@ -146,15 +148,15 @@ vector<vector<Point>> LaneDetector::FindBox(Mat edgeImg) {
 	return output;
 }
 // ROI lane 색칠
-Mat LaneDetector::DrawLane(Mat img_frame, vector<vector<Point>> box_points) {
-	Mat output = img_frame.clone();
+Mat LaneDetector::DrawLane(Mat frameImg, vector<vector<Point>> boxPoints) {
+	Mat output = frameImg.clone();
 
-	for (int i = 0; i < box_points.size(); i++) {
-		fillConvexPoly(output, box_points[i], Scalar(0, 230, 30), LINE_AA, 0);
-		addWeighted(output, 0.3, img_frame, 0.7, 0, output);
-		line(output, box_points[i][0], box_points[i][1], Scalar(0, 0, 255), 2, LINE_AA);
-		line(output, box_points[i][2], box_points[i][3], Scalar(0, 0, 255), 2, LINE_AA);
-		line(output, box_points[i][3], box_points[i][0], Scalar(0, 0, 255), 2, LINE_AA);
+	for (int i = 0; i < boxPoints.size(); i++) {
+		fillConvexPoly(output, boxPoints[i], Scalar(0, 230, 30), LINE_AA, 0);
+		addWeighted(output, 0.3, frameImg, 0.7, 0, output);
+		line(output, boxPoints[i][0], boxPoints[i][1], Scalar(0, 0, 255), 2, LINE_AA);
+		line(output, boxPoints[i][2], boxPoints[i][3], Scalar(0, 0, 255), 2, LINE_AA);
+		line(output, boxPoints[i][3], boxPoints[i][0], Scalar(0, 0, 255), 2, LINE_AA);
 	}
 
 	return output;

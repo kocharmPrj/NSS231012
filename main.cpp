@@ -27,17 +27,17 @@ int main()
         cap >> frameImg;
 
         filterImg = laneDetector.FilterColors(frameImg);
-        imshow("img_filter", filterImg);
+        imshow("filterImg", filterImg);
 
         edgeImg = laneDetector.MakeEdge(filterImg);
-        imshow("img_edges", edgeImg);
+        imshow("edgeImg", edgeImg);
 
         laneImg = frameImg.clone();
         boxP = laneDetector.FindBox(edgeImg);
         if (boxP.size() > 0) {
             laneImg = laneDetector.DrawLane(frameImg, boxP);
         }
-        imshow("img_lane", laneImg);
+        imshow("laneImg", laneImg);
 
         char key = static_cast<char>(waitKey(30));
         if (key == 'q' || key == 27)
@@ -48,25 +48,16 @@ int main()
     {
         frameImg = imread("D:\\Project\\LaneDetector\\LaneDetector\\template.png");
 
-
-        // 1. filtering
         filterImg = laneDetector.FilterColors(frameImg);
-        //imshow("img_filter", img_filter);
 
-
-        // 2. canny edge 추출
         edgeImg = laneDetector.MakeEdge(filterImg);
         
-
-        // 3. hought transform 직선 감지
-
-        vector<vector<Point>> boxP;
         laneImg = frameImg.clone();
         boxP = laneDetector.FindBox(edgeImg);
         if (boxP.size() > 0) {
             laneImg = laneDetector.DrawLane(frameImg, boxP);
         }
-        imshow("img_lane", laneImg);
+        imshow("laneImg", laneImg);
 
     }
 

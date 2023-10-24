@@ -32,7 +32,7 @@ public:
 	static bool cmpY(Point a, Point b);
 	void GetXYLine(Mat img_frame);
 	vector<vector<Point>> FindBox(Mat edgeImg);
-	Mat DrawLane(Mat img_frame, vector<vector<Point>> lines);
+	Mat DrawLane(Mat frameImg, vector<vector<Point>> boxPoints);
 
 private:
 	vector<Vec4i> linesP;
