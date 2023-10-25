@@ -108,10 +108,10 @@ void LaneDetector::DisplayCombinedImage() {
 	Mat right = getRotationMatrix2D(center, -90, 1.0);
 	Mat left = getRotationMatrix2D(center, 90, 1.0);
 	warpAffine(image[0], image[0], left, image[1].size());
-	warpAffine(image[2], image[2], right, image[1].size());
+	warpAffine(image[1], image[1], right, image[1].size());
 
 	Mat bottom = getRotationMatrix2D(center, 180, 1.0);
-	warpAffine(image[3], image[3], bottom, image[1].size());
+	warpAffine(image[2], image[2], bottom, image[1].size());
 
 	Mat subH = subImage1 + subImage3;
 	Mat subV = subImage2 + subImage4;
@@ -119,8 +119,8 @@ void LaneDetector::DisplayCombinedImage() {
 	Mat comH = Mat(Size(width, height), CV_8UC3);
 	Mat comV = Mat(Size(width, height), CV_8UC3);
 
-	hconcat(image[0], image[2], comH);  // 좌측과 우측 결합
-	vconcat(image[1], image[3], comV);  // 상단과 하단 결합
+	hconcat(image[0], image[1], comH);  // 좌측과 우측 결합
+	vconcat(image[3], image[2], comV);  // 상단과 하단 결합
 
 	//사각형 mask 생성
 	Rect horizental(0, 240, 960, 480);
@@ -130,8 +130,6 @@ void LaneDetector::DisplayCombinedImage() {
 	comV.copyTo(subV(vertical), subV(vertical));
 
 	combinedImage = subH + subV;
-
-	imshow("Combined Frame", combinedImage);
 
 	waitKey(1);
 }
@@ -160,8 +158,6 @@ Mat LaneDetector::FilterColors(Mat img)
 	Scalar lowerYellow = Scalar(10, 100, 140); //노란색 차선 (HSV)
 	Scalar upperYellow = Scalar(40, 255, 255);
 
-	// bilateralfilter(opencv내장함수)
-	bilateralFilter(img, output, 10, 50, 50);
 
 	//흰색 필터링
 	inRange(output, lowerWhite, upperWhite, whiteMask);
@@ -169,12 +165,6 @@ Mat LaneDetector::FilterColors(Mat img)
 
 	cvtColor(output, hsvImg, COLOR_BGR2HSV);
 
-	//노란색 필터링
-	inRange(hsvImg, lowerYellow, upperYellow, yellowMask);
-	bitwise_and(output, output, yellowImg, yellowMask);
-
-	//두 영상을 합친다.
-	addWeighted(whiteImg, 1.0, yellowImg, 1.0, 0.0, output);
 
 	return output;
 }
@@ -278,19 +268,18 @@ vector<vector<Point>> LaneDetector::FindBox() {
 }
 // ROI lane 색칠
 Mat LaneDetector::DrawLane(vector<vector<Point>> boxPoints) {
-	Mat output = combinedImage.clone();
 
 	if (boxPoints.size() > 0) {
 		for (int i = 0; i < boxPoints.size(); i++) {
-			fillConvexPoly(output, boxPoints[i], Scalar(0, 230, 30), LINE_AA, 0);
-			line(output, boxPoints[i][0], boxPoints[i][1], Scalar(0, 0, 255), 2, LINE_AA);
-			line(output, boxPoints[i][2], boxPoints[i][3], Scalar(0, 0, 255), 2, LINE_AA);
-			line(output, boxPoints[i][3], boxPoints[i][0], Scalar(0, 0, 255), 2, LINE_AA);
+			fillConvexPoly(combinedImage, boxPoints[i], Scalar(0, 230, 30), LINE_AA, 0);
+			line(combinedImage, boxPoints[i][0], boxPoints[i][1], Scalar(0, 0, 255), 2, LINE_AA);
+			line(combinedImage, boxPoints[i][2], boxPoints[i][3], Scalar(0, 0, 255), 2, LINE_AA);
+			line(combinedImage, boxPoints[i][3], boxPoints[i][0], Scalar(0, 0, 255), 2, LINE_AA);
 		}
-		addWeighted(output, 0.3, combinedImage, 0.7, 0, output);
+		addWeighted(combinedImage, 0.3, combinedImage, 0.7, 0, combinedImage);
 	}
 
-	return output;
+	return combinedImage;
 }
 
 // 4. 장애물 감지
@@ -315,18 +304,11 @@ bool LaneDetector::DetectObstacle(vector<vector<Point>> boxPoints) {
 		fillConvexPoly(maskedImg, roi, Scalar(255, 255, 255), LINE_8);
 		bitwise_and(edgeImg, maskedImg, obstacleImg);
 
-		imshow("obstacleImg", obstacleImg);
-
 		for (int row = 0; row < obstacleImg.rows; row++) {
 			for (int col = 0; col < obstacleImg.cols; col++) {
 				pixelSum += obstacleImg.data[row * obstacleImg.cols + col];
 			}
 		}
-
-		char mystr_1[30];
-		sprintf(mystr_1, "pixelSum : %d", pixelSum);
-		putText(obstacleImg, mystr_1, Point(80, 80), FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2);
-		imshow("obstacleImg", obstacleImg);
 
 		if (pixelSum > 10) obstacleFlag = true;
 		else obstacleFlag = false;

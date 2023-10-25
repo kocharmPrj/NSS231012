@@ -13,6 +13,8 @@ int main() {
     Mat frameImg, laneImg;
     vector<vector<Point>> boxP;
 
+    laneDetector.CheckCamPort();
+
     while (true) {
         laneDetector.RunCam();
         laneDetector.DisplayCombinedImage();
