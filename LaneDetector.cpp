@@ -98,20 +98,22 @@ void LaneDetector::DisplayCombinedImage() {
 	fillPoly(subImage3, polygons3, Scalar(255, 255, 255));
 	fillPoly(subImage4, polygons4, Scalar(255, 255, 255));
 
-	resize(image[0], image[0], Size(width / 2, height / 2));
+	Rect rect(80, 0, 480, 480);
+
+	image[0] = image[0](rect);
+	image[1] = image[1](rect);
+	image[2] = image[2](rect);
+	image[3] = image[3](rect);
+
+	/*resize(image[0], image[0], Size(width / 2, height / 2));
 	resize(image[1], image[1], Size(width / 2, height / 2));
 	resize(image[2], image[2], Size(width / 2, height / 2));
-	resize(image[3], image[3], Size(width / 2, height / 2));
+	resize(image[3], image[3], Size(width / 2, height / 2));*/
 
 	//화면 회전
-	Point2f center(image[1].cols / 2.0, image[1].rows / 2.0);
-	Mat right = getRotationMatrix2D(center, -90, 1.0);
-	Mat left = getRotationMatrix2D(center, 90, 1.0);
-	warpAffine(image[0], image[0], left, image[1].size());
-	warpAffine(image[1], image[1], right, image[1].size());
-
-	Mat bottom = getRotationMatrix2D(center, 180, 1.0);
-	warpAffine(image[2], image[2], bottom, image[1].size());
+	rotate(image[1], image[1], ROTATE_90_CLOCKWISE);
+	rotate(image[0], image[0], ROTATE_90_COUNTERCLOCKWISE);
+	rotate(image[2], image[2], ROTATE_180);
 
 	Mat subH = subImage1 + subImage3;
 	Mat subV = subImage2 + subImage4;
