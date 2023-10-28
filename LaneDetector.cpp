@@ -100,15 +100,17 @@ void LaneDetector::DisplayCombinedImage() {
 
 	Rect rect(80, 0, 480, 480);
 
-	image[0] = image[0](rect);
+	/*image[0] = image[0](rect);
 	image[1] = image[1](rect);
 	image[2] = image[2](rect);
-	image[3] = image[3](rect);
+	image[3] = image[3](rect);*/
 
-	/*resize(image[0], image[0], Size(width / 2, height / 2));
+
+
+	resize(image[0], image[0], Size(width / 2, height / 2));
 	resize(image[1], image[1], Size(width / 2, height / 2));
 	resize(image[2], image[2], Size(width / 2, height / 2));
-	resize(image[3], image[3], Size(width / 2, height / 2));*/
+	resize(image[3], image[3], Size(width / 2, height / 2));
 
 	//화면 회전
 	rotate(image[1], image[1], ROTATE_90_CLOCKWISE);
