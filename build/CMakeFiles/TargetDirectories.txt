@@ -1,0 +1,5 @@
+/home/rojong/bot/socketForPC/build/CMakeFiles/NSS231012.dir
+/home/rojong/bot/socketForPC/build/CMakeFiles/package.dir
+/home/rojong/bot/socketForPC/build/CMakeFiles/package_source.dir
+/home/rojong/bot/socketForPC/build/CMakeFiles/edit_cache.dir
+/home/rojong/bot/socketForPC/build/CMakeFiles/rebuild_cache.dir
