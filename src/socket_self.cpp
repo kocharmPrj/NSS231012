@@ -74,20 +74,23 @@ void* TX_thread(void* arg){
                     strcpy(clientInfo->ip, inet_ntoa(clntAddr.sin_addr));
                     std::cout << "Logged in.." << inet_ntoa(clntAddr.sin_addr) << '\n';
                     // go loop to wait the POSITION DATA
+                    int flag = 0;
                     while(1){
                         std::string tmp;
                         pthread_mutex_lock(&g_mutex);
-                        tmp = g_string;
+                        if (tmp.compare(g_string) != 0){
+                            tmp = g_string;
+                            flag = 1;
+                        }
                         pthread_mutex_unlock(&g_mutex);
-
-                        if (tmp.compare("") != 0){
-                            // shut down condition
-                            if (!tmp.compare("q")) 
-                                shutdown(clntSock, SHUT_WR);
-                            // SEND DATA
-                            else {
-                                write(clientInfo->fd, tmp.c_str(), tmp.length());
-                            }
+                        
+                        if (flag==1){
+                            flag = 0;
+                            std::cout << "g_string changed. " << tmp << '\n';
+                            if (tmp.compare("q")) shutdown(clntSock, SHUT_WR);
+                            // SEND TO CLIENT
+                            else write(clientInfo->fd, tmp.c_str(), tmp.length());
+                            
                         }
                     }
                 }
