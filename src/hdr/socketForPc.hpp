@@ -10,7 +10,6 @@
 #define BOT_USER 1
 #define STOP_SIG 99999
 
-#define DEBUG
 typedef struct {
     char fd;
     char *from;
