@@ -3,6 +3,30 @@
 WorldCoordinate::WorldCoordinate()
 {
 	std::cout << "WorldCoordinate::Ctor" << std::endl;
+<<<<<<< Updated upstream
+=======
+	this->fx = 612.577383;
+	this->fy = 572.970525;
+	this->cx = 313.033322;
+	this->cy = 220.421716;
+	this->k1 = -0.056895;
+	this->k2 = 0.259353;
+	this->p1 = 0.004600;
+	this->p2 = 0.002048;
+}
+
+WorldCoordinate::WorldCoordinate(double fx, double fy, double cx, double cy, double k1, double k2, double p1, double p2)
+{
+	std::cout << "WorldCoordinate::Ctor" << std::endl;
+	this->fx = fx;
+	this->fy = fy;
+	this->cx = cx;
+	this->cy = cy;
+	this->k1 = k1;
+	this->k2 = k2;
+	this->p1 = p1;
+	this->p2 = p2;
+>>>>>>> Stashed changes
 }
 
 WorldCoordinate::~WorldCoordinate()
@@ -46,7 +70,12 @@ vector<Point2f> WorldCoordinate::DetectVertex(Mat frame, vector<Point3f> objectP
 	return imagePoints;
 }
 
+<<<<<<< Updated upstream
 vector<Point2f> WorldCoordinate::CalculateDistance(Mat drawing, vector<Point3f> objectPoints, vector<Point2f> imagePoints)
+=======
+
+string WorldCoordinate::CalculateDistance(Mat drawing, vector<Point3f> objectPoints, vector<Point2f> imagePoints)
+>>>>>>> Stashed changes
 {
 	// camera parameters
 	double m[] = { fx, 0, cx, 0, fy, cy, 0, 0, 1 };	// intrinsic parameters
@@ -109,15 +138,30 @@ vector<Point2f> WorldCoordinate::CalculateDistance(Mat drawing, vector<Point3f> 
 	}
 
 	double calculateX, calculateY;
+<<<<<<< Updated upstream
 	calculateX = 5 - X;
 	calculateY = 5 - Y;
+=======
+	calculateX = 10 - X;
+	calculateY = 10 - Y;
+>>>>>>> Stashed changes
 
 	vector<Point2f> calDist;
 	calDist.push_back(Point(calculateX, calculateY));
 
 	ostringstream distance;
+<<<<<<< Updated upstream
 	distance << "move X : " << calculateX << ", move Y : " << calculateY;
 	cv::putText(drawing, distance.str(), Point(20, 460), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 0), 2);
 
 	return calDist;
+=======
+	distance << calculateX << " " << calculateY;
+	string distanceString = distance.str();
+	cv::putText(drawing, distanceString, Point(20, 460), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 0), 2);
+	
+
+
+	return distanceString;
+>>>>>>> Stashed changes
 }
