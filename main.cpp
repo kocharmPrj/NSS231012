@@ -13,9 +13,10 @@ int main()
 {
     LaneDetector laneDetector;
     Mat frameImg, laneImg;
-    vector<vector<Point>> boxP;
+    vector<Point> boxP;
+    vector<vector<Point>> boxPList;
+    int cnt = 0;
 
-    //VideoCapture cap("D:\\Project\\LaneDetector\\LaneDetector\\test.mp4");
     VideoCapture cap(0);
 
     if (!cap.isOpened())
@@ -30,32 +31,26 @@ int main()
 
         laneImg = frameImg.clone();
         boxP = laneDetector.FindBox(frameImg);
-        if (boxP.size() > 0) 
-            laneImg = laneDetector.DrawLane(frameImg, boxP);
-        
-        bool flag = laneDetector.DetectObstacle(boxP);
-        if (flag == true)
-            putText(laneImg, "Can't parking", Point(80, 80), FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2);
-        else if (flag == false)
-            putText(laneImg, "Can parking", Point(80, 80), FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2);
-
+	if (boxP.size() > 0) 
+	{
+	   	int flag = laneDetector.DetectObstacle(boxP);
+		
+		if (flag == 1){			
+			laneImg = laneDetector.DrawLane(frameImg, boxP);
+			putText(laneImg, "Can't parking", Point(80, 80), FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2);
+			cout << flag << ":" <<  boxP << endl;
+		}
+		else if (flag == 2){
+			laneImg = laneDetector.DrawLane(frameImg, boxP);
+            		putText(laneImg, "Can parking", Point(80, 80), FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2);
+			cout << flag << ":" << boxP << endl;
+		}
+	}
         imshow("laneImg", laneImg);
 
         char key = static_cast<char>(waitKey(30));
         if (key == 'q' || key == 27)
             break;
-    }
-
-    if (false)
-    {
-        frameImg = imread("D:\\Project\\LaneDetector\\LaneDetector\\template.png");
-
-        laneImg = frameImg.clone();
-        boxP = laneDetector.FindBox(frameImg);
-        if (boxP.size() > 0) {
-            laneImg = laneDetector.DrawLane(frameImg, boxP);
-        }
-        imshow("laneImg", laneImg);
     }
 
     return 0;

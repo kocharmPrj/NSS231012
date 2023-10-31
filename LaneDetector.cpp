@@ -7,9 +7,11 @@ LaneDetector::LaneDetector()
 	, xyLines({})
 	, imgCols(0)
 	, imgRows(0)
+	, noBoxCnt(0)
+	, boxPointList({}) 
 	, xlineDetect(false)
 	, ylineDetect(false)
-	, obstacleFlag(false)
+	, obstacleFlag(0)
 {
 }
 
@@ -94,13 +96,13 @@ bool LaneDetector::cmpY(Point a, Point b) {
 	return a.y < b.y;
 }
 // ROI box point 추출
-vector<vector<Point>> LaneDetector::FindBox(Mat frameImg) {
+vector<Point> LaneDetector::FindBox(Mat frameImg) {
 	filterImg = FilterColors(frameImg);
 	edgeImg = MakeEdge(filterImg);
 	GetXYLine(edgeImg);
 
 	vector<vector<Point>> xline, yline;
-	vector<vector<Point>> output;
+	vector<Point> output;
 	Vec4i fitXline, fitYline;
 	vector<double> xm, ym;
 	vector<Point> xb, yb;
@@ -134,75 +136,78 @@ vector<vector<Point>> LaneDetector::FindBox(Mat frameImg) {
 		}
 	}
 
-	if (xb.size() > 1 && yb.size() > 0) {
+	if (xb.size() > 3 && yb.size() > 0) {
 		sort(xb.begin(), xb.end(), cmpY);
 		sort(yb.begin(), yb.end(), cmpX);
-		for (int i = 1; i < xb.size() - 2; i+=2) {
-			double area = (xb[i + 1].y - xb[i].y) * yb[0].x;
-			if (30000 < area) {
-				vector<Point> temp;
-				temp.push_back(Point(yb[0].x, xb[i].y));
-				temp.push_back(Point(0, xb[i].y));
-				temp.push_back(Point(0, xb[i + 1].y));
-				temp.push_back(Point(yb[0].x, xb[i + 1].y));
-				output.push_back(temp);
-			}
-		}
+		double area = (xb[2].y - xb[1].y) * yb[0].x;
+		if (30000 < area && area < 150000) {
+			vector<Point> temp;
+			temp.push_back(Point(yb[0].x, xb[1].y));
+			temp.push_back(Point(0, xb[1].y));
+			temp.push_back(Point(0, xb[2].y));
+			temp.push_back(Point(yb[0].x, xb[2].y));
+			boxPointList.push_back(temp);
+			noBoxCnt = 0;
+		} 
+		else noBoxCnt += 1;
 	}
+	else noBoxCnt += 1;
+	
+	if (noBoxCnt == 10) {
+		output = {};
+		boxPointList = {};
+		noBoxCnt = 0;
+	}
+	if (boxPointList.size() > 0)
+		output = boxPointList.back();
+
 	return output;
 }
 // ROI lane 색칠
-Mat LaneDetector::DrawLane(Mat frameImg, vector<vector<Point>> boxPoints) {
+Mat LaneDetector::DrawLane(Mat frameImg, vector<Point> boxPoints) {
 	Mat output = frameImg.clone();
 
-	for (int i = 0; i < boxPoints.size(); i++) {
-		fillConvexPoly(output, boxPoints[i], Scalar(0, 230, 30), LINE_AA, 0);
-		line(output, boxPoints[i][0], boxPoints[i][1], Scalar(0, 0, 255), 2, LINE_AA);
-		line(output, boxPoints[i][2], boxPoints[i][3], Scalar(0, 0, 255), 2, LINE_AA);
-		line(output, boxPoints[i][3], boxPoints[i][0], Scalar(0, 0, 255), 2, LINE_AA);
-	}
+	fillConvexPoly(output, boxPoints, Scalar(0, 230, 30), LINE_AA, 0);
+	line(output, boxPoints[0], boxPoints[1], Scalar(0, 0, 255), 2, LINE_AA);
+	line(output, boxPoints[2], boxPoints[3], Scalar(0, 0, 255), 2, LINE_AA);
+	
 	addWeighted(output, 0.3, frameImg, 0.7, 0, output);
 
 	return output;
 }
 
-bool LaneDetector::DetectObstacle(vector<vector<Point>> boxPoints) {
-	for (int i = 0; i < boxPoints.size(); i++) {
-		double xLen = boxPoints[i][3].x - boxPoints[i][1].x;
-		double yLen = boxPoints[i][3].y - boxPoints[i][1].y;
-		double xCenter = (boxPoints[i][3].x + boxPoints[i][1].x) / 2;
-		double yCenter = (boxPoints[i][3].y + boxPoints[i][1].y) / 2;
-		double xPadding = xLen * 0.3;
-		double yPadding = yLen * 0.3;
-		vector<Point> roi;
-		Mat maskedImg, obstacleImg;
-		uchar pixelSum = 0;
-		
-		roi.push_back(Point(xCenter + xPadding, yCenter - yPadding));
-		roi.push_back(Point(xCenter - xPadding, yCenter - yPadding));
-		roi.push_back(Point(xCenter - xPadding, yCenter + yPadding));
-		roi.push_back(Point(xCenter + xPadding, yCenter + yPadding));
+// 4. obastacle detection 
+int LaneDetector::DetectObstacle(vector<Point> boxPoints) {
+	if (noBoxCnt > 3) 
+		return 3;
+	double xLen = boxPoints[3].x - boxPoints[1].x;
+	double yLen = boxPoints[3].y - boxPoints[1].y;
+	double xCenter = (boxPoints[3].x + boxPoints[1].x) / 2;
+	double yCenter = (boxPoints[3].y + boxPoints[1].y) / 2;
+	double xPadding = xLen * 0.3;
+	double yPadding = yLen * 0.3;
+	vector<Point> roi;
+	Mat maskedImg, obstacleImg;
+	uchar pixelSum = 0;
+	
+	roi.push_back(Point(xCenter + xPadding, yCenter - yPadding));
+	roi.push_back(Point(xCenter - xPadding, yCenter - yPadding));
+	roi.push_back(Point(xCenter - xPadding, yCenter + yPadding));
+	roi.push_back(Point(xCenter + xPadding, yCenter + yPadding));
 
-		maskedImg = Mat::zeros(edgeImg.rows, edgeImg.cols, CV_8UC1);
-		fillConvexPoly(maskedImg, roi, Scalar(255, 255, 255), LINE_8);
-		bitwise_and(edgeImg, maskedImg, obstacleImg);
+	maskedImg = Mat::zeros(edgeImg.rows, edgeImg.cols, CV_8UC1);
+	fillConvexPoly(maskedImg, roi, Scalar(255, 255, 255), LINE_8);
+	bitwise_and(edgeImg, maskedImg, obstacleImg);
 
-		imshow("obstacleImg", obstacleImg);
-
-		for (int row = 0; row < obstacleImg.rows; row++) {
-			for (int col = 0; col < obstacleImg.cols; col++) {
-				pixelSum += obstacleImg.data[row * obstacleImg.cols + col];
-			}
+	for (int row = 0; row < obstacleImg.rows; row++) {
+		for (int col = 0; col < obstacleImg.cols; col++) {
+			pixelSum += obstacleImg.data[row * obstacleImg.cols + col];
 		}
-
-		char mystr_1[30];
-		sprintf(mystr_1, "pixelSum : %d", pixelSum);
-		putText(obstacleImg, mystr_1, Point(80, 80), FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2);
-		imshow("obstacleImg", obstacleImg);
-
-		if (pixelSum > 10) obstacleFlag = true;
-		else obstacleFlag = false;
 	}
+
+	if (pixelSum > 10) obstacleFlag = 1;
+	else obstacleFlag = 2;
 
 	return obstacleFlag;
 }
+
