@@ -3,8 +3,6 @@
 WorldCoordinate::WorldCoordinate()
 {
 	std::cout << "WorldCoordinate::Ctor" << std::endl;
-<<<<<<< Updated upstream
-=======
 	this->fx = 612.577383;
 	this->fy = 572.970525;
 	this->cx = 313.033322;
@@ -26,7 +24,6 @@ WorldCoordinate::WorldCoordinate(double fx, double fy, double cx, double cy, dou
 	this->k2 = k2;
 	this->p1 = p1;
 	this->p2 = p2;
->>>>>>> Stashed changes
 }
 
 WorldCoordinate::~WorldCoordinate()
@@ -70,12 +67,8 @@ vector<Point2f> WorldCoordinate::DetectVertex(Mat frame, vector<Point3f> objectP
 	return imagePoints;
 }
 
-<<<<<<< Updated upstream
-vector<Point2f> WorldCoordinate::CalculateDistance(Mat drawing, vector<Point3f> objectPoints, vector<Point2f> imagePoints)
-=======
 
 string WorldCoordinate::CalculateDistance(Mat drawing, vector<Point3f> objectPoints, vector<Point2f> imagePoints)
->>>>>>> Stashed changes
 {
 	// camera parameters
 	double m[] = { fx, 0, cx, 0, fy, cy, 0, 0, 1 };	// intrinsic parameters
@@ -138,24 +131,13 @@ string WorldCoordinate::CalculateDistance(Mat drawing, vector<Point3f> objectPoi
 	}
 
 	double calculateX, calculateY;
-<<<<<<< Updated upstream
-	calculateX = 5 - X;
-	calculateY = 5 - Y;
-=======
 	calculateX = 10 - X;
 	calculateY = 10 - Y;
->>>>>>> Stashed changes
 
 	vector<Point2f> calDist;
 	calDist.push_back(Point(calculateX, calculateY));
 
 	ostringstream distance;
-<<<<<<< Updated upstream
-	distance << "move X : " << calculateX << ", move Y : " << calculateY;
-	cv::putText(drawing, distance.str(), Point(20, 460), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 0), 2);
-
-	return calDist;
-=======
 	distance << calculateX << " " << calculateY;
 	string distanceString = distance.str();
 	cv::putText(drawing, distanceString, Point(20, 460), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 0), 2);
@@ -163,5 +145,4 @@ string WorldCoordinate::CalculateDistance(Mat drawing, vector<Point3f> objectPoi
 
 
 	return distanceString;
->>>>>>> Stashed changes
 }
