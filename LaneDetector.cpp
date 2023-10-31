@@ -7,9 +7,11 @@ LaneDetector::LaneDetector()
 	, xyLines({})
 	, imgCols(0)
 	, imgRows(0)
+	, noBoxCnt(0)
+	, boxPointList({}) 
 	, xlineDetect(false)
 	, ylineDetect(false)
-	, obstacleFlag(false)
+	, obstacleFlag(0)
 {
 }
 
@@ -26,7 +28,7 @@ LaneDetector::~LaneDetector()
 void LaneDetector::CheckCamPort() {
 	int startFlag = 0;
 	for (int i = 0; i < 4; i++) {
-		cap[i] = VideoCapture(i);
+		cap[i] = VideoCapture(i*2);
 		if (cap[i].isOpened()) {
 			cout << "Opened Cam Port is : " << i << '\n';
 			CamNum++;
@@ -59,28 +61,28 @@ void LaneDetector::DisplayCombinedImage() {
 	std::vector<cv::Point> pts1, pts2, pts3, pts4;
 	//1번 좌측화면
 	pts1.push_back(Point(centerX, centerY));
-	pts1.push_back(Point(240, 240));
-	pts1.push_back(Point(0, 240));
-	pts1.push_back(Point(0, 720));
-	pts1.push_back(Point(240, 720));
+	pts1.push_back(Point(160, 160));
+	pts1.push_back(Point(0, 160));
+	pts1.push_back(Point(0, 800));
+	pts1.push_back(Point(160, 800));
 	//2번 전방화면
 	pts2.push_back(Point(centerX, centerY));
-	pts2.push_back(Point(240, 240));
-	pts2.push_back(Point(240, 0));
-	pts2.push_back(Point(720, 0));
-	pts2.push_back(Point(720, 240));
+	pts2.push_back(Point(160, 160));
+	pts2.push_back(Point(160, 0));
+	pts2.push_back(Point(800, 0));
+	pts2.push_back(Point(800, 160));
 	//3번 우측화면
 	pts3.push_back(Point(centerX, centerY));
-	pts3.push_back(Point(720, 240));
-	pts3.push_back(Point(width, 240));
-	pts3.push_back(Point(width, 720));
-	pts3.push_back(Point(720, 720));
+	pts3.push_back(Point(800, 160));
+	pts3.push_back(Point(width, 160));
+	pts3.push_back(Point(width, 800));
+	pts3.push_back(Point(800, 800));
 	//4번 후방화면
 	pts4.push_back(Point(centerX, centerY));
-	pts4.push_back(Point(240, 720));
-	pts4.push_back(Point(240, height));
-	pts4.push_back(Point(720, height));
-	pts4.push_back(Point(720, 720));
+	pts4.push_back(Point(160, 800));
+	pts4.push_back(Point(160, height));
+	pts4.push_back(Point(800, height));
+	pts4.push_back(Point(800, 800));
 
 	// 4개의 삼각형에 해당하는 마스크 이미지를 생성
 	Mat subImage1 = Mat::zeros(height, width, combinedImage.type());
@@ -98,7 +100,7 @@ void LaneDetector::DisplayCombinedImage() {
 	fillPoly(subImage3, polygons3, Scalar(255, 255, 255));
 	fillPoly(subImage4, polygons4, Scalar(255, 255, 255));
 
-	Rect rect(80, 0, 480, 480);
+	//Rect rect(80, 0, 480, 480);
 
 	/*image[0] = image[0](rect);
 	image[1] = image[1](rect);
@@ -106,16 +108,17 @@ void LaneDetector::DisplayCombinedImage() {
 	image[3] = image[3](rect);*/
 
 
-
-	resize(image[0], image[0], Size(width / 2, height / 2));
+	/*resize(image[0], image[0], Size(width / 2, height / 2));
 	resize(image[1], image[1], Size(width / 2, height / 2));
 	resize(image[2], image[2], Size(width / 2, height / 2));
-	resize(image[3], image[3], Size(width / 2, height / 2));
+	resize(image[3], image[3], Size(width / 2, height / 2));*/
+
+	//빈 공간 줄이기
 
 	//화면 회전
-	rotate(image[1], image[1], ROTATE_90_CLOCKWISE);
-	rotate(image[0], image[0], ROTATE_90_COUNTERCLOCKWISE);
-	rotate(image[2], image[2], ROTATE_180);
+	rotate(image[2], image[2], ROTATE_90_CLOCKWISE);
+	rotate(image[1], image[1], ROTATE_90_COUNTERCLOCKWISE);
+	rotate(image[3], image[3], ROTATE_180);
 
 	Mat subH = subImage1 + subImage3;
 	Mat subV = subImage2 + subImage4;
@@ -123,21 +126,21 @@ void LaneDetector::DisplayCombinedImage() {
 	Mat comH = Mat(Size(width, height), CV_8UC3);
 	Mat comV = Mat(Size(width, height), CV_8UC3);
 
-	hconcat(image[0], image[1], comH);  // 좌측과 우측 결합
-	vconcat(image[3], image[2], comV);  // 상단과 하단 결합
+	hconcat(image[2], image[1], comH);  // 좌측과 우측 결합
+	vconcat(image[0], image[3], comV);  // 상단과 하단 결합
 
 	//사각형 mask 생성
-	Rect horizental(0, 240, 960, 480);
-	Rect vertical(240, 0, 480, 960);
+	Rect horizental(0, 160, 960, 640);
+	Rect vertical(160, 0, 640, 960);
 
 	comH.copyTo(subH(horizental), subH(horizental));
 	comV.copyTo(subV(vertical), subV(vertical));
 
 	combinedImage = subH + subV;
 
+	
 	waitKey(1);
 }
-
 
 
 // <lane detection>
@@ -162,6 +165,8 @@ Mat LaneDetector::FilterColors(Mat img)
 	Scalar lowerYellow = Scalar(10, 100, 140); //노란색 차선 (HSV)
 	Scalar upperYellow = Scalar(40, 255, 255);
 
+	// bilateralfilter(opencv내장함수)
+	bilateralFilter(img, output, 10, 50, 50);
 
 	//흰색 필터링
 	inRange(output, lowerWhite, upperWhite, whiteMask);
@@ -169,6 +174,12 @@ Mat LaneDetector::FilterColors(Mat img)
 
 	cvtColor(output, hsvImg, COLOR_BGR2HSV);
 
+	//노란색 필터링
+	inRange(hsvImg, lowerYellow, upperYellow, yellowMask);
+	bitwise_and(output, output, yellowImg, yellowMask);
+
+	//두 영상을 합친다.
+	addWeighted(whiteImg, 1.0, yellowImg, 1.0, 0.0, output);
 
 	return output;
 }
@@ -213,13 +224,13 @@ bool LaneDetector::cmpY(Point a, Point b) {
 	return a.y < b.y;
 }
 // ROI box point 추출
-vector<vector<Point>> LaneDetector::FindBox() {
+vector<Point> LaneDetector::FindBox() {
 	filterImg = FilterColors(combinedImage);
 	edgeImg = MakeEdge(filterImg);
 	GetXYLine(edgeImg);
 
 	vector<vector<Point>> xline, yline;
-	vector<vector<Point>> output;
+	vector<Point> output;
 	Vec4i fitXline, fitYline;
 	vector<double> xm, ym;
 	vector<Point> xb, yb;
@@ -253,70 +264,77 @@ vector<vector<Point>> LaneDetector::FindBox() {
 		}
 	}
 
-	if (xb.size() > 1 && yb.size() > 0) {
+	if (xb.size() > 3 && yb.size() > 0) {
 		sort(xb.begin(), xb.end(), cmpY);
 		sort(yb.begin(), yb.end(), cmpX);
-		for (int i = 1; i < xb.size() - 2; i+=2) {
-			double area = (xb[i + 1].y - xb[i].y) * yb[0].x;
-			if (30000 < area) {
-				vector<Point> temp;
-				temp.push_back(Point(yb[0].x, xb[i].y));
-				temp.push_back(Point(0, xb[i].y));
-				temp.push_back(Point(0, xb[i + 1].y));
-				temp.push_back(Point(yb[0].x, xb[i + 1].y));
-				output.push_back(temp);
-			}
-		}
+		double area = (xb[2].y - xb[1].y) * yb[0].x;
+		if (30000 < area && area < 150000) {
+			vector<Point> temp;
+			temp.push_back(Point(yb[0].x, xb[1].y));
+			temp.push_back(Point(0, xb[1].y));
+			temp.push_back(Point(0, xb[2].y));
+			temp.push_back(Point(yb[0].x, xb[2].y));
+			boxPointList.push_back(temp);
+			noBoxCnt = 0;
+		} 
+		else noBoxCnt += 1;
 	}
+	else noBoxCnt += 1;
+	
+	if (noBoxCnt == 10) {
+		output = {};
+		boxPointList = {};
+		noBoxCnt = 0;
+	}
+	if (boxPointList.size() > 0)
+		output = boxPointList.back();
+
 	return output;
 }
 // ROI lane 색칠
-Mat LaneDetector::DrawLane(vector<vector<Point>> boxPoints) {
-
-	if (boxPoints.size() > 0) {
-		for (int i = 0; i < boxPoints.size(); i++) {
-			fillConvexPoly(combinedImage, boxPoints[i], Scalar(0, 230, 30), LINE_AA, 0);
-			line(combinedImage, boxPoints[i][0], boxPoints[i][1], Scalar(0, 0, 255), 2, LINE_AA);
-			line(combinedImage, boxPoints[i][2], boxPoints[i][3], Scalar(0, 0, 255), 2, LINE_AA);
-			line(combinedImage, boxPoints[i][3], boxPoints[i][0], Scalar(0, 0, 255), 2, LINE_AA);
-		}
+Mat LaneDetector::DrawLane(vector<Point> boxPoints) {
+	if(boxPoints.size() > 0){
+		fillConvexPoly(combinedImage, boxPoints, Scalar(0, 230, 30), LINE_AA, 0);
+		line(combinedImage, boxPoints[0], boxPoints[1], Scalar(0, 0, 255), 2, LINE_AA);
+		line(combinedImage, boxPoints[2], boxPoints[3], Scalar(0, 0, 255), 2, LINE_AA);
+		line(combinedImage, boxPoints[3], boxPoints[0], Scalar(0, 0, 255), 2, LINE_AA);
 		addWeighted(combinedImage, 0.3, combinedImage, 0.7, 0, combinedImage);
 	}
-
 	return combinedImage;
 }
 
-// 4. 장애물 감지
-bool LaneDetector::DetectObstacle(vector<vector<Point>> boxPoints) {
-	for (int i = 0; i < boxPoints.size(); i++) {
-		double xLen = boxPoints[i][3].x - boxPoints[i][1].x;
-		double yLen = boxPoints[i][3].y - boxPoints[i][1].y;
-		double xCenter = (boxPoints[i][3].x + boxPoints[i][1].x) / 2;
-		double yCenter = (boxPoints[i][3].y + boxPoints[i][1].y) / 2;
-		double xPadding = xLen * 0.3;
-		double yPadding = yLen * 0.3;
-		vector<Point> roi;
-		Mat maskedImg, obstacleImg;
-		uchar pixelSum = 0;
-		
-		roi.push_back(Point(xCenter + xPadding, yCenter - yPadding));
-		roi.push_back(Point(xCenter - xPadding, yCenter - yPadding));
-		roi.push_back(Point(xCenter - xPadding, yCenter + yPadding));
-		roi.push_back(Point(xCenter + xPadding, yCenter + yPadding));
+// 4. obastacle detection 
+int LaneDetector::DetectObstacle(vector<Point> boxPoints) {
+	if (noBoxCnt > 3) 
+		return 3;
+	double xLen = boxPoints[3].x - boxPoints[1].x;
+	double yLen = boxPoints[3].y - boxPoints[1].y;
+	double xCenter = (boxPoints[3].x + boxPoints[1].x) / 2;
+	double yCenter = (boxPoints[3].y + boxPoints[1].y) / 2;
+	double xPadding = xLen * 0.3;
+	double yPadding = yLen * 0.3;
+	vector<Point> roi;
+	Mat maskedImg, obstacleImg;
+	uchar pixelSum = 0;
+	
+	roi.push_back(Point(xCenter + xPadding, yCenter - yPadding));
+	roi.push_back(Point(xCenter - xPadding, yCenter - yPadding));
+	roi.push_back(Point(xCenter - xPadding, yCenter + yPadding));
+	roi.push_back(Point(xCenter + xPadding, yCenter + yPadding));
 
-		maskedImg = Mat::zeros(edgeImg.rows, edgeImg.cols, CV_8UC1);
-		fillConvexPoly(maskedImg, roi, Scalar(255, 255, 255), LINE_8);
-		bitwise_and(edgeImg, maskedImg, obstacleImg);
+	maskedImg = Mat::zeros(edgeImg.rows, edgeImg.cols, CV_8UC1);
+	fillConvexPoly(maskedImg, roi, Scalar(255, 255, 255), LINE_8);
+	bitwise_and(edgeImg, maskedImg, obstacleImg);
 
-		for (int row = 0; row < obstacleImg.rows; row++) {
-			for (int col = 0; col < obstacleImg.cols; col++) {
-				pixelSum += obstacleImg.data[row * obstacleImg.cols + col];
-			}
+	for (int row = 0; row < obstacleImg.rows; row++) {
+		for (int col = 0; col < obstacleImg.cols; col++) {
+			pixelSum += obstacleImg.data[row * obstacleImg.cols + col];
 		}
-
-		if (pixelSum > 10) obstacleFlag = true;
-		else obstacleFlag = false;
 	}
+
+	if (pixelSum > 10) obstacleFlag = 1;
+	else obstacleFlag = 2;
 
 	return obstacleFlag;
 }
+
