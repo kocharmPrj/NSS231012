@@ -233,7 +233,8 @@ CMakeFiles/NSS231012.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/include/c++/11/bits/basic_ios.tcc \
   /usr/include/c++/11/bits/ostream.tcc \
   /usr/include/c++/11/istream \
-  /usr/include/c++/11/bits/istream.tcc
+  /usr/include/c++/11/bits/istream.tcc \
+  /usr/include/c++/11/ctime
 
 CMakeFiles/NSS231012.dir/src/socket_self.cpp.o: ../src/socket_self.cpp \
   /usr/include/stdc-predef.h \
@@ -645,6 +646,8 @@ CMakeFiles/NSS231012.dir/src/socket_self.cpp.o: ../src/socket_self.cpp \
 /usr/include/c++/11/bits/functexcept.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/sigset_t.h:
+
+/usr/include/c++/11/ctime:
 
 /usr/include/x86_64-linux-gnu/bits/time64.h:
 
