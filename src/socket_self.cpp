@@ -70,7 +70,7 @@ void* TX_thread(void* arg){
                 if ( !strcmp(clientInfo->id, pToken) ){
                     clientInfo->fd = clntSock;
                     strcpy(clientInfo->ip, inet_ntoa(clntAddr.sin_addr));
-                    std::cout << "Logged in.." << inet_ntoa(clntAddr.sin_addr) << '\n';
+                    std::cout << "Logged in..turtle" << inet_ntoa(clntAddr.sin_addr) << '\n';
                     // go loop to wait the POSITION DATA
                     int flag = 0;
                     while(1){
