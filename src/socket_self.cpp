@@ -10,24 +10,21 @@ void* TX_thread(void* arg){
     //char* pArray[ARR_CNT] = {0};
 
     CLIENT_INFO* clientInfo = (CLIENT_INFO*) malloc( sizeof(CLIENT_INFO) );
-    FILE* fd = fopen("user.txt", "r");
+    //FILE* fd = fopen("user.txt", "r");
+    //if (fd ==nullptr) std::cout << " ERR in fopen" <<'\n';
     char clntId[20]; // id size
-
-    int ret;
-    ret = fscanf(fd, "%s", clntId);
+    strcpy(clntId, "Turtle1");
+    int ret = 7;
+    //ret = fscanf(fd, "%19s", clntId);
+    std::cout << "clntId fscanf test : " << clntId << '\n';
+    
     if (ret <= 0){
         std::cout << "err in read user" << '\n';
         exit(1);
     }
     clientInfo->fd = -1;
     strcpy(clientInfo->id, clntId);
-    fclose(fd);
-/*
-    if ( pthread_mutex_init(&g_mutex, NULL) != 0 ) {
-        std::cout << "mutex init err";
-        exit(2);
-    }
-    */
+    //fclose(fd);
 
     servSock = socket(PF_INET, SOCK_STREAM, 0);
     memset(&servAddr, 0, sizeof(sockaddr_in));
@@ -35,6 +32,7 @@ void* TX_thread(void* arg){
     servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
     servAddr.sin_port = htons(atoi("5000")); // PORT 5000
                                             
+    std::cout << "opopop" << '\n';
     setsockopt(servSock, SOL_SOCKET, SO_REUSEADDR, 
             (void*)&sockOption, sizeof(int));
     if ( bind(servSock,(struct sockaddr*)&servAddr, sizeof(sockaddr_in))

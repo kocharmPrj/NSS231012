@@ -1,4 +1,5 @@
 #include "socketForPc.hpp"
+#include <ctime>
 
 std::string g_string;
 std::string g_endString;
@@ -11,9 +12,11 @@ int main(){
     pthread_detach(t_id[0]);
 
 
+    std::cout<< '1' << '\n';
     int i = 3;
     std::string tmp = "tmp";
-    while ( i != 0 ) {
+    while ( i > 0 ) {
+        std::cout << "test: " << i << '\n';
         //std::cin >> tmp2;
         tmp = tmp + std::to_string(i);
 
@@ -21,9 +24,20 @@ int main(){
         g_string = tmp;
         pthread_mutex_unlock(&g_mutex);
         i--;
+        std::cout << "test end : " << i << '\n';
+    }
+    std::cout << "fu" << '\n';
+    
+    std::time_t base = time(NULL);
+    while ( time(NULL)-base < 3 ){
+        pthread_mutex_lock(&g_mutex);
+        g_string = "3 3";
+        pthread_mutex_unlock(&g_mutex);
     }
 
-    std::cout << "end 3 times";
+
+    
+
 
 //TX thread
     
