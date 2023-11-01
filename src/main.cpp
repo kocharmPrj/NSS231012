@@ -12,22 +12,17 @@ int main(){
     pthread_detach(t_id[0]);
 
 
-    std::cout<< '1' << '\n';
+    // FOR TEST
     int i = 3;
     std::string tmp = "tmp";
     while ( i > 0 ) {
-        std::cout << "test: " << i << '\n';
-        //std::cin >> tmp2;
         tmp = tmp + std::to_string(i);
 
         pthread_mutex_lock(&g_mutex);
         g_string = tmp;
         pthread_mutex_unlock(&g_mutex);
         i--;
-        std::cout << "test end : " << i << '\n';
     }
-    std::cout << "fu" << '\n';
-    
     std::time_t base = time(NULL);
     while ( time(NULL)-base < 3 ){
         pthread_mutex_lock(&g_mutex);
@@ -36,10 +31,6 @@ int main(){
     }
 
 
-    
-
-
-//TX thread
     
 //cin integer 1. start ( go striaght )  - tx MAX_INT
 //              2. stop and backward    - tx pos x,y

@@ -32,7 +32,6 @@ void* TX_thread(void* arg){
     servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
     servAddr.sin_port = htons(atoi("5000")); // PORT 5000
                                             
-    std::cout << "opopop" << '\n';
     setsockopt(servSock, SOL_SOCKET, SO_REUSEADDR, 
             (void*)&sockOption, sizeof(int));
     if ( bind(servSock,(struct sockaddr*)&servAddr, sizeof(sockaddr_in))
@@ -40,6 +39,7 @@ void* TX_thread(void* arg){
         std::cout << "bind Err";
         exit(3);
     }
+    std::cout << "opopop" << '\n';
     if ( listen(servSock, 5) == -1 ){
         std::cout << "listen Err";
         exit(3);
