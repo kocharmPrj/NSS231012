@@ -11,6 +11,8 @@ LaneDetector::LaneDetector()
 	, boxPointList({}) 
 	, xlineDetect(false)
 	, ylineDetect(false)
+	, xCenter(0)
+	, yCenter(0)
 	, obstacleFlag(0)
 {
 }
@@ -309,8 +311,8 @@ int LaneDetector::DetectObstacle(vector<Point> boxPoints) {
 		return 3;
 	double xLen = boxPoints[3].x - boxPoints[1].x;
 	double yLen = boxPoints[3].y - boxPoints[1].y;
-	double xCenter = (boxPoints[3].x + boxPoints[1].x) / 2;
-	double yCenter = (boxPoints[3].y + boxPoints[1].y) / 2;
+	xCenter = (boxPoints[3].x + boxPoints[1].x) / 2;
+	yCenter = (boxPoints[3].y + boxPoints[1].y) / 2;
 	double xPadding = xLen * 0.3;
 	double yPadding = yLen * 0.3;
 	vector<Point> roi;
@@ -338,3 +340,10 @@ int LaneDetector::DetectObstacle(vector<Point> boxPoints) {
 	return obstacleFlag;
 }
 
+// 5. start moving flag
+bool LaneDetector::StartMoving() {
+	if (xCenter > 455 && xCenter <505)
+		return true;
+	else
+		return false;
+}

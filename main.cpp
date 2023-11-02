@@ -38,6 +38,8 @@ int main()
 		else if (flag == 2){
             		putText(laneImg, "Can parking", Point(80, 80), FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2);
 			cout << flag << ":" << boxP << endl;
+			if (laneDetector.StartMoving())
+				cout << "moving" << endl;
 		}
 	}
         imshow("laneImg", laneImg);

@@ -38,6 +38,7 @@ public:
 	vector<Point> FindBox();
 	Mat DrawLane(vector<Point> boxPoints);
 	int DetectObstacle(vector<Point> boxPoints);
+	bool StartMoving();
 
 private:
 	int CamNum = 0;
@@ -53,6 +54,7 @@ private:
 	int imgCols, imgRows, noBoxCnt;
 	vector<vector<Point>> boxPointList;
 	bool xlineDetect, ylineDetect;
+	double xCenter, yCenter;
 	int obstacleFlag;
 };
 
