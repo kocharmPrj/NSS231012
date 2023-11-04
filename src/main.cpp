@@ -13,27 +13,21 @@ int main(){
 
 
     // FOR TEST
-    int i = 3;
-    std::string tmp = "tmp";
-    while ( i > 0 ) {
-        tmp = tmp + std::to_string(i);
-
-        pthread_mutex_lock(&g_mutex);
-        g_string = tmp;
-        pthread_mutex_unlock(&g_mutex);
-        i--;
-    }
     std::time_t base = time(NULL);
-    while ( time(NULL)-base < 3 ){
-        pthread_mutex_lock(&g_mutex);
-        g_string = "3 3";
-        pthread_mutex_unlock(&g_mutex);
+    while (true){
+        if ( (time(NULL)-base) > 4){
+            pthread_mutex_lock(&g_mutex);
+            g_string = "30 9";
+            pthread_mutex_unlock(&g_mutex);
+            break;
+        }
     }
 
 
     
 //cin integer 1. start ( go striaght )  - tx MAX_INT
 //              2. stop and backward    - tx pos x,y
+    pthread_testcancel(); // or use a different function
 
 
     return 0;

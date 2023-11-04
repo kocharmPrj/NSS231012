@@ -40,10 +40,11 @@ void* TX_thread(void* arg){
         exit(3);
     }
     std::cout << "opopop" << '\n';
-    if ( listen(servSock, 5) == -1 ){
+    if ( listen(servSock, 7) == -1 ){
         std::cout << "listen Err";
         exit(3);
     }
+    std::cout << "klklkl" << '\n';
 
     while (1) {
         clntAddrSize = sizeof(clntAddr);
@@ -53,11 +54,12 @@ void* TX_thread(void* arg){
         if (clntSock < 0){
             std::cout << "accept Err";
             exit(3);
-        }
+        } else std::cout<<"accepted" << '\n';
 
         // chk the REQUEST || MSG
         size_t strLen = 0;
         strLen = read(clntSock, idChk, sizeof(idChk));
+        std::cout << "strLen in socket : " << strLen << '\n';
         std::string token(idChk);
         token = token.substr(0, static_cast<std::string::size_type>(strLen));
         pToken = const_cast<char*>(token.c_str());
@@ -73,19 +75,20 @@ void* TX_thread(void* arg){
                     std::cout << "Logged in..turtle" << inet_ntoa(clntAddr.sin_addr) << '\n';
                     // go loop to wait the POSITION DATA
                     int flag = 0;
+                    std::string tmp = "";
                     while(1){
-                        std::string tmp;
                         pthread_mutex_lock(&g_mutex);
                         if (tmp.compare(g_string) != 0){
                             tmp = g_string;
                             flag = 1;
+                            std::cout << "differenct g_string!" << '\n';
                         }
                         pthread_mutex_unlock(&g_mutex);
                         
                         if (flag==1){
                             flag = 0;
-                            std::cout << "g_string changed. " << tmp << '\n';
-                            if (tmp.compare("q")) shutdown(clntSock, SHUT_WR);
+                            std::cout << "prepare to send " << tmp << '\n';
+                            if (tmp.compare("q")==0) shutdown(clntSock, SHUT_WR);
                             // SEND TO CLIENT
                             else write(clientInfo->fd, tmp.c_str(), tmp.length());
                             
