@@ -1,0 +1,1 @@
+/usr/bin/g++-11 -rdynamic CMakeFiles/NSS231012.dir/src/main.cpp.o CMakeFiles/NSS231012.dir/src/socket_self.cpp.o -o ../output/NSS231012 
