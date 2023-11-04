@@ -24,9 +24,3 @@ using namespace cv;
 
 
 #endif // _OPENCV_INIT_
-
-#include <vector>
-#include <string>
-#include <memory>
-#include <map>
-#include <algorithm>

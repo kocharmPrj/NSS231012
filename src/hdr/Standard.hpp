@@ -20,6 +20,13 @@
 #include <string>
 #include <iostream>
 #include <cstdio>
+#include <ctime>
+
+#include <vector>
+#include <string>
+#include <memory>
+#include <map>
+#include <algorithm>
 
 
 #endif
