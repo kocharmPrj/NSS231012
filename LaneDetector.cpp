@@ -118,8 +118,8 @@ void LaneDetector::DisplayCombinedImage() {
 	//빈 공간 줄이기
 
 	//화면 회전
-	rotate(image[2], image[2], ROTATE_90_CLOCKWISE);
-	rotate(image[1], image[1], ROTATE_90_COUNTERCLOCKWISE);
+	rotate(image[2], image[2], ROTATE_90_COUNTERCLOCKWISE);
+	rotate(image[1], image[1], ROTATE_90_CLOCKWISE);
 	rotate(image[3], image[3], ROTATE_180);
 
 	Mat subH = subImage1 + subImage3;
@@ -307,7 +307,7 @@ Mat LaneDetector::DrawLane(vector<Point> boxPoints) {
 
 // 4. obastacle detection 
 int LaneDetector::DetectObstacle(vector<Point> boxPoints) {
-	if (noBoxCnt > 3) 
+	if (noBoxCnt > 0) 
 		return 3;
 	double xLen = boxPoints[3].x - boxPoints[1].x;
 	double yLen = boxPoints[3].y - boxPoints[1].y;
@@ -342,7 +342,7 @@ int LaneDetector::DetectObstacle(vector<Point> boxPoints) {
 
 // 5. start moving flag
 bool LaneDetector::StartMoving() {
-	if (xCenter > 455 && xCenter <505)
+	if (yCenter > 440 && yCenter <550)
 		return true;
 	else
 		return false;

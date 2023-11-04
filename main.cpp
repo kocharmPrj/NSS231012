@@ -18,6 +18,9 @@ int main()
 
     laneDetector.CheckCamPort();
     
+    int preCnt = 0;
+    bool startMovingFlag;
+
     while (true)
     {
 	laneDetector.RunCam();
@@ -33,13 +36,19 @@ int main()
 		
 		if (flag == 1){			
 			putText(laneImg, "Can't parking", Point(80, 80), FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2);
-			cout << flag << ":" <<  boxP << endl;
+			cout << "can't parking" << endl;
 		}
 		else if (flag == 2){
             		putText(laneImg, "Can parking", Point(80, 80), FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2);
-			cout << flag << ":" << boxP << endl;
-			if (laneDetector.StartMoving())
-				cout << "moving" << endl;
+			startMovingFlag = laneDetector.StartMoving();
+			if (startMovingFlag == true) { 
+			        preCnt += 1;
+				if (preCnt >= 3){
+					cout << "can parking" << boxP << endl;
+					cout << "moving" << endl;
+					preCnt = 0;
+				}
+			}
 		}
 	}
         imshow("laneImg", laneImg);
