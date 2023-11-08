@@ -10,23 +10,76 @@ The autoparking project aims to facilitate easy parking in complex car parks, re
 - Jonghyeok Oh
 
 ### Install
- - after clone this repo, make some folders for project build in root folder of this project
+##### ServerSide(PC)
+ - After clone this repo's main branch, make some folders for project build at root folder of this project
 ```
   mkdir build lib
   cd lib
 ```
  - Install opencv and build it in lib folder by following Instruction below
     - https://docs.opencv.org/4.x/d7/d9f/tutorial_linux_install.html
-    - you can get lib/build lib/opencv4.x folder then
-<br>
-- Let's build and run
+    - you will get lib/build lib/opencv4.x folder then
+ - Let's build and run
 ```
   cd ../build
   cmake ..
   make 
   cd ../output
   ./NSS231012
+  ```
+ - If there is an err with socket like connect(), check port Number and firewall. The socket in code uses port number 5000. So access to 5000 should be allowed. Or you can change the port number to use in socket_self.cpp
 ```
+  sudo ufw status
+```
+##### ClientSide(Turtlebot)
+ - Install ROS noetic to SBC(raspberry)
+    - http://wiki.ros.org/noetic/Installation/Ubuntu
+    - Ubuntu 20.04 LTS
+ - Install OpenCR 
+    - https://emanual.robotis.com/docs/en/platform/turtlebot3/opencr_setup/#opencr-setup
+    - On SBC Ubuntu and install firmware to OpenCR
+ - Make workspace for ros at home directory and clone clientSide branch of this repo in it.
+  ```
+    mkdir catkin_ws && cd &_
+    git clone -b clientSide <repo url>
+  ```
+  - Then, you will see a src folder like
+```
+    src/
+    ├── CMakeLists.txt -> /opt/ros/noetic/share/catkin/cmake/toplevel.cmake
+    └── raspi
+        ├── CMakeLists.txt
+        ├── include
+        │   └── cmd_vel_pub
+        │       └── Cmd_vel_msg.hpp
+        ├── msg
+          │   └── Cmd_vel_msg.msgd
+        ├── package.xml
+        └── src
+            ├── hdr
+            │   └── socketForRaspi.hpp
+            ├── raspi.cpp
+            └── socket_pi.cpp
+```
+  - You should amend IP and Port number at src/raspi/src/socket_pi.cpp whether they are right to serverSide(main) 
+    - Fill in IP by amending CP and port is 5000 at default
+  - Let's build and run
+    - Source ros script
+    ```source /opt/ros/noetic/setup.bash```
+    - There will be a 'setting_ros.bash' to auto settings for ros master and connect between SBC and OpenCR. If there is a problem, refer to Instruction below
+    ```./setting_ros.bash```
+    - https://emanual.robotis.com/docs/en/platform/turtlebot3/bringup/#bringup
+    - And open another terminal of SBC,
+    ```
+    source /opt/ros/noetic/setup.bash
+    cd ~/catkin_ws
+    catkin_make
+    source devel/setup.bash
+    ./run.sh
+    ```
+    - If there is a problem about package, try 'rosdep' cmd
+
+
  
 ## AVM(Around View Monitor)
 Using four cameras, we create an Around View Monitor (AVM) system that displays video on a combined image. The central point of this combined image is the turtle bot, and each camera provides a view of the front, left, right, and rear of the vehicle.
