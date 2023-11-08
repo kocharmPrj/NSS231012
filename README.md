@@ -40,9 +40,8 @@ The autoparking project aims to facilitate easy parking in complex car parks, re
  - Install OpenCR 
     - https://emanual.robotis.com/docs/en/platform/turtlebot3/opencr_setup/#opencr-setup
     - On SBC Ubuntu and install firmware to OpenCR
- - Make workspace for ros at home directory and clone clientSide branch of this repo in it.
+ - Clone clientSide branch of this repo as a workspace for ros
   ```
-    mkdir catkin_ws && cd &_
     git clone -b clientSide <repo url>
   ```
   - Then, you will see a src folder like
