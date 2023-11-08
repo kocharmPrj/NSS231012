@@ -1,8 +1,8 @@
 # AutoParking Project
 ---------------------------------------
 The autoparking project aims to facilitate easy parking in complex car parks, reducing time spent parking, and allowing people to utilize their time more effectively.
-![](https://github.com/kocharmPrj/NSS231012/blob/gif/car2.gif)
-![](https://github.com/kocharmPrj/NSS231012/blob/gif/monitor2.gif)
+
+![](https://github.com/kocharmPrj/NSS231012/blob/gif/car2.gif)![](https://github.com/kocharmPrj/NSS231012/blob/gif/monitor2.gif)
 ### Member
 - Jinho Kim
 - Eunyoung Kim
