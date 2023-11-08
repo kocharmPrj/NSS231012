@@ -39,11 +39,11 @@ int main(){
                 int flag = laneDetector.DetectObstacle(boxP);
 
                 if (flag == 1){
-                        putText(laneImg, "Can't parking", Point(80, 80), FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2);
+                        putText(laneImg, "Can't parking", Point(80, 80), FONT_HERSHEY_COMPLEX, 1, cv::Scalar(255, 255, 255), 2);
                         cout << "can't parking" << endl;
                 }
                 else if (flag == 2){
-                        putText(laneImg, "Can parking", Point(80, 80), FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2);
+                        putText(laneImg, "Can parking", Point(80, 80), FONT_HERSHEY_COMPLEX, 1, cv::Scalar(255, 255, 255), 2);
                         startMovingFlag = laneDetector.StartMoving();
 			// here?
                         if (startMovingFlag == true) {
@@ -55,7 +55,7 @@ int main(){
                                         preCnt = 0;
 					// 3 Lines Under to Ctrl bot
 					pthread_mutex_lock(&g_mutex);
-					g_string = "30 9"; // SIGNAL AS STOP
+					g_string = "6 11"; // SIGNAL AS STOP
 					pthread_mutex_unlock(&g_mutex);
 					// Until here
                                 }

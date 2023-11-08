@@ -18,8 +18,8 @@ using namespace cv;
 
 #ifdef _DEBUG
 #pragma comment(lib,"opencv_world480d.lib")
-#else
-#pragma comment(lib,"opencv_world480.lib")
+//#else
+//#pragma comment(lib,"opencv_world480.lib")
 #endif
 
 

@@ -202,7 +202,7 @@ void LaneDetector::GetXYLine(Mat img) {
 	Point start, end;
 	vector<Vec4i> xlines, ylines;
 
-	for (int i = 0; i < linesP.size(); i++) {
+	for (size_t i = 0; i < linesP.size(); i++) {
 		Vec4i line = linesP[i];
 		start = Point(line[0], line[1]);
 		end = Point(line[2], line[3]);
@@ -238,13 +238,13 @@ vector<Point> LaneDetector::FindBox() {
 	vector<Point> xb, yb;
 
 	if (xlineDetect) {
-		for(int i = 0; i< xyLines[0].size(); i++) {
+		for(size_t i = 0; i< xyLines[0].size(); i++) {
 			vector<Point> temp;
 			temp.push_back(Point(xyLines[0][i][0], xyLines[0][i][1]));
 			xline.push_back(temp);
 		}
 		if (xline.size() > 0) {
-			for (int i = 0; i < xline.size(); i++) {
+			for (size_t i = 0; i < xline.size(); i++) {
 				fitLine(xline[i], fitXline, DIST_L2, 0, 0.01, 0.01);
 				xm.push_back(fitXline[1] / fitXline[0]);
 				xb.push_back(Point(fitXline[2], fitXline[3]));
@@ -252,13 +252,13 @@ vector<Point> LaneDetector::FindBox() {
 		}
 	}
 	if (ylineDetect) {
-		for (int i = 0; i < xyLines[1].size(); i++) {
+		for (size_t i = 0; i < xyLines[1].size(); i++) {
 			vector<Point> temp;
 			temp.push_back(Point(xyLines[1][i][0], xyLines[1][i][1]));
 			yline.push_back(temp);
 		}
 		if (yline.size() > 0) {
-			for (int i = 0; i < yline.size(); i++) {
+			for (size_t i = 0; i < yline.size(); i++) {
 				fitLine(yline[i], fitYline, DIST_L2, 0, 0.01, 0.01);
 				ym.push_back(fitYline[1] / fitYline[0]);
 				yb.push_back(Point(fitYline[2], fitYline[3]));
