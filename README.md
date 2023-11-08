@@ -1,8 +1,8 @@
 # AutoParking Project
 ---------------------------------------
+![](https://github.com/kocharmPrj/NSS231012/blob/gif/car.gif)
 The autoparking project aims to facilitate easy parking in complex car parks, reducing time spent parking, and allowing people to utilize their time more effectively.
 
-![](https://github.com/kocharmPrj/NSS231012/blob/gif/car2.gif)![](https://github.com/kocharmPrj/NSS231012/blob/gif/monitor2.gif)
 ### Member
 - Jinho Kim
 - Eunyoung Kim
@@ -93,3 +93,8 @@ By socket connect using posix api, a PC and raspi3 make a connetion. Using threa
 
 ## TurtleBot
 Using ros1-noetic and TurtleBot3 embedded SW, the turtlebot gets the moving data from raspberry pi3. That depends on Publication in ros communication API.
+<br><br><br><br><br>
+
+
+
+###### This project is primarily licensed under the Apache License 2.0. The 3-Clause BSD License is included as a secondary license for compatibility.
