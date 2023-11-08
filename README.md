@@ -9,6 +9,25 @@ The autoparking project aims to facilitate easy parking in complex car parks, re
 - Suengkwon Yu
 - Jonghyeok Oh
 
+### Install
+ - after clone this repo, make some folders for project build in root folder of this project
+```
+  mkdir build lib
+  cd lib
+```
+ - Install opencv and build it in lib folder by following Instruction below
+    - https://docs.opencv.org/4.x/d7/d9f/tutorial_linux_install.html
+    - you can get lib/build lib/opencv4.x folder then
+<br>
+- Let's build and run
+```
+  cd ../build
+  cmake ..
+  make 
+  cd ../output
+  ./NSS231012
+```
+ 
 ## AVM(Around View Monitor)
 Using four cameras, we create an Around View Monitor (AVM) system that displays video on a combined image. The central point of this combined image is the turtle bot, and each camera provides a view of the front, left, right, and rear of the vehicle.
 
