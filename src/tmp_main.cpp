@@ -73,6 +73,10 @@ int main(){
 	}
     }
     
+    void* exitStatus;
+    pthread_cancel(t_id[0]);
+    pthread_join(t_id[0], &exitStatus);
+    
     pthread_testcancel(); // or use a different function
 
     return 0;
