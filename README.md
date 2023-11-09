@@ -1,6 +1,6 @@
 # AutoParking Project
 ---------------------------------------
-![](https://github.com/kocharmPrj/NSS231012/blob/gif/car2.gif)![](https://github.com/kocharmPrj/NSS231012/blob/gif/monitor2.gif)
+![](https://github.com/kocharmPrj/NSS231012/blob/gif/car1.gif)![](https://github.com/kocharmPrj/NSS231012/blob/gif/monitor1.gif)
 
 The autoparking project aims to facilitate easy parking in complex car parks, reducing time spent parking, and allowing people to utilize their time more effectively.
 
