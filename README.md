@@ -89,10 +89,10 @@ Using four cameras, we create an Around View Monitor (AVM) system that displays 
 By employing Canny edge detection on the parking lot, we establish a Region of Interest (ROI) to inspect whether there are any objects within the parking area.
 
 ## Connection Between PC & raspberripi3 on turtlebot
-By socket connect using posix api, a PC and raspi3 make a connetion. Using thread and mutex, LaneDetector part makes decision to move turtlebot to parking lot and socket TX part get that signal on mutex and send the data to raspi. The raspi also runs RX part using thread and mutex to receive the data and utilize it.
+By socket connect using posix api, a PC and raspi3 make a connetion. LaneDetector part makes decision to move turtlebot to parking lot and socket TX part get that signal using mutex and send the data to raspi. The raspi also runs RX part using thread and mutex to receive the data and utilize it to send move operation to TurtleBot3.
 
 ## TurtleBot
-Using ros1-noetic and TurtleBot3 embedded SW, the turtlebot gets the moving data from raspberry pi3. That depends on Publication in ros communication API.
+Using ros1-noetic and TurtleBot3 firmware, the turtlebot gets the moving data from raspberry pi3. That relys on Publication in ros communication API.
 <br><br><br><br><br>
 
 
