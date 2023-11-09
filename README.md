@@ -1,5 +1,8 @@
 # NSS231012
 ## Turtlebot3 with ROS noetic
+
+### You have to refer READMD of main branch to install this 
+
 ### Job
 1. Receive data using socket and thread
 2. Hand over data received to main thread(control turtlebot movement)
