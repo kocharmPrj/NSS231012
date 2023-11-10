@@ -12,6 +12,8 @@ The autoparking project aims to facilitate easy parking in complex car parks, re
 - Jonghyeok Oh
 
 ### Install
+##### Prerequisite
+ - The PC needs 4 cameras ready. or the program will be corrupted because of lack of exception. 4 cameras port must be /dev/videos0 to /dev/videos7
 ##### ServerSide(PC)
  - After clone this repo's main branch, make some folders for project build at root folder of this project
 ```
@@ -78,7 +80,9 @@ The autoparking project aims to facilitate easy parking in complex car parks, re
     source devel/setup.bash
     ./run.sh
     ```
-    - If there is a problem about package, try 'rosdep' cmd
+    - If there is a problem about package / cmake_make build,
+      - try 'rosdep' cmd
+      - swap memory. i tested turtle bot with raspberry pi 3 and it lacks of memory so catkin_make build doesn't work. It fell into infinite loop. So i did swap memory 1GB and it works.
 
 
  
