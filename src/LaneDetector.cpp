@@ -156,16 +156,12 @@ Mat LaneDetector::FilterColors(Mat img)
 	Mat output = Mat::zeros(img.size(), CV_8UC1);
 	imgCols = img.cols;
 	imgRows = img.rows;
-	UMat hsvImg;
-	UMat whiteMask, whiteImg;
-	UMat yellowMask, yellowImg;
+	Mat whiteMask, whiteImg;
 	img.copyTo(output);
 
 	//차선 색깔 범위 
 	Scalar lowerWhite = Scalar(200, 200, 200); //흰색 차선 (RGB)
 	Scalar upperWhite = Scalar(255, 255, 255);
-	Scalar lowerYellow = Scalar(10, 100, 140); //노란색 차선 (HSV)
-	Scalar upperYellow = Scalar(40, 255, 255);
 
 	// bilateralfilter(opencv내장함수)
 	bilateralFilter(img, output, 10, 50, 50);
@@ -173,15 +169,6 @@ Mat LaneDetector::FilterColors(Mat img)
 	//흰색 필터링
 	inRange(output, lowerWhite, upperWhite, whiteMask);
 	bitwise_and(output, output, whiteImg, whiteMask);
-
-	cvtColor(output, hsvImg, COLOR_BGR2HSV);
-
-	//노란색 필터링
-	inRange(hsvImg, lowerYellow, upperYellow, yellowMask);
-	bitwise_and(output, output, yellowImg, yellowMask);
-
-	//두 영상을 합친다.
-	addWeighted(whiteImg, 1.0, yellowImg, 1.0, 0.0, output);
 
 	return output;
 }
@@ -246,7 +233,6 @@ vector<Point> LaneDetector::FindBox() {
 		if (xline.size() > 0) {
 			for (size_t i = 0; i < xline.size(); i++) {
 				fitLine(xline[i], fitXline, DIST_L2, 0, 0.01, 0.01);
-				xm.push_back(fitXline[1] / fitXline[0]);
 				xb.push_back(Point(fitXline[2], fitXline[3]));
 			}
 		}
@@ -260,7 +246,6 @@ vector<Point> LaneDetector::FindBox() {
 		if (yline.size() > 0) {
 			for (size_t i = 0; i < yline.size(); i++) {
 				fitLine(yline[i], fitYline, DIST_L2, 0, 0.01, 0.01);
-				ym.push_back(fitYline[1] / fitYline[0]);
 				yb.push_back(Point(fitYline[2], fitYline[3]));
 			}
 		}
