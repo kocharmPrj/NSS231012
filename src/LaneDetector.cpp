@@ -225,11 +225,12 @@ vector<Point> LaneDetector::FindBox() {
 		for(size_t i = 0; i< xyLines[0].size(); i++) {
 			vector<Point> temp;
 			temp.push_back(Point(xyLines[0][i][0], xyLines[0][i][1]));
+			temp.push_back(Point(xyLines[0][i][2], xyLines[0][i][3]));
 			xline.push_back(temp);
 		}
 		if (xline.size() > 0) {
 			for (size_t i = 0; i < xline.size(); i++) {
-				fitLine(xline[i], fitXline, DIST_L2, 0, 0.01, 0.01);
+				fitLine(xline[i], fitXline, DIST_L2, 0, 0.01, 0.01); //시작점과 끝점을 이은 직선의 중간점을 이용하여 roi를 추출하기 위해 사용
 				xb.push_back(Point(fitXline[2], fitXline[3]));
 			}
 		}
@@ -237,7 +238,8 @@ vector<Point> LaneDetector::FindBox() {
 	if (ylineDetect) {
 		for (size_t i = 0; i < xyLines[1].size(); i++) {
 			vector<Point> temp;
-			temp.push_back(Point(xyLines[1][i][0], xyLines[1][i][1]));
+			temp.push_back(Point(xyLines[1][i][0], xyLines[1][i][1])); //시작점과 끝점을 이은 직선의 중간점을 이용하여 roi를 추출하기 위해 사용
+			temp.push_back(Point(xyLines[1][i][2], xyLines[1][i][3]));
 			yline.push_back(temp);
 		}
 		if (yline.size() > 0) {
