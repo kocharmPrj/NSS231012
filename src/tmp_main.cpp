@@ -55,7 +55,7 @@ int main(){
                                         preCnt = 0;
 					// 3 Lines Under to Ctrl bot
 					pthread_mutex_lock(&g_mutex);
-					g_string = "6 11"; // SIGNAL AS STOP
+					g_string = "4 13"; // SIGNAL AS STOP
 					pthread_mutex_unlock(&g_mutex);
 					// Until here
                                 }
