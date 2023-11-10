@@ -163,9 +163,6 @@ Mat LaneDetector::FilterColors(Mat img)
 	Scalar lowerWhite = Scalar(200, 200, 200); //흰색 차선 (RGB)
 	Scalar upperWhite = Scalar(255, 255, 255);
 
-	// bilateralfilter(opencv내장함수)
-	bilateralFilter(img, output, 10, 50, 50);
-
 	//흰색 필터링
 	inRange(output, lowerWhite, upperWhite, whiteMask);
 	bitwise_and(output, output, whiteImg, whiteMask);
